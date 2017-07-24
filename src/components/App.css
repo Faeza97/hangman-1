@@ -1,0 +1,26 @@
+.stickyFooter {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  display: flex;
+  flex: 1 0 auto;
+  align-items:center;
+  justify-content: center;
+}
+
+.title-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav{
+text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+}
+
+nav h1 {
+  font-size: 2.4rem;
+}

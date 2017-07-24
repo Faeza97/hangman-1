@@ -1,0 +1,73 @@
+button{
+  font-family: 'Passion One', cursive;
+}
+
+ul>li>button {
+  margin-bottom: 15px;
+  width: 70px;
+}
+
+.hoverButton:hover {
+  background-color: #03a9f4 !important;
+}
+
+h1{
+  font-family: 'Passion One', cursive;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+.letter-slots {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.letter-slot {
+  display: inline-block;
+  border-bottom: 2px solid #345;
+  color: #01579b;
+  width: 30px;
+  height: 30px;
+  margin: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 24px;
+  vertical-align: bottom;
+}
+
+.revealed {
+  color: lighten(#678, 40%);
+}
+
+.imgPosition{
+  width: 13rem;
+  height: 13rem;
+}
+
+.rowImg{
+display: flex;
+justify-content: flex-end;
+}
+
+/* label focus color */
+.input-field label {
+     color: #fff !important;
+     font-size: 1rem;
+   }
+    .input-field input{
+     border-bottom: 1px solid #fff !important;
+     color: #fff !important;
+   }
+ .input-field input:focus{
+   color: #fff !important;
+ }
+ /* label underline focus color */
+.input-field input:focus {
+   border-bottom: 1px solid #fff !important;
+   box-shadow: 0 1px 0 0 #fff !important;
+   color: #fff !important;
+   font-size: 2rem;
+ }
