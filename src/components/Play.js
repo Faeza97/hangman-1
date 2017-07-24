@@ -18,7 +18,8 @@ class Play extends Component {
       fail: false,
       won: false,
       letter: "",
-      isDisabled: false
+      isDisabled: false,
+      error:""
     }
     this.newGame = this.newGame.bind(this);
     this.checkLetter = this.checkLetter.bind(this);
@@ -26,15 +27,15 @@ class Play extends Component {
     this.getButton = this.getButton.bind(this);
     this.getSlot = this.getSlot.bind(this);
     this.hasWon = this.hasWon.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
   componentDidMount() {
     this.newGame();
     this.input.focus();
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
+  handleChange(e) {
+    this.setState({letter: e.target.value})
   }
   newGame() {
     let word = _.sample(words[this.props.match.path.substring(1)]);
@@ -44,6 +45,7 @@ class Play extends Component {
     let fail = false;
     let won = false;
     let isDisabled = false;
+    let error = "";
     this.setState({
       word,
       strikes,
@@ -51,9 +53,9 @@ class Play extends Component {
       guesses,
       fail,
       won,
-      isDisabled
+      isDisabled,
+      error
     });
-    console.log(word);
   }
 
   getSlot(letter, index) {
@@ -63,6 +65,7 @@ class Play extends Component {
       ? letter
       : ' ';
 
+    //when user failed and the  empty places stayed
     if (contents === ' ' && fail) {
       classNames.push('revealed');
       contents = letter;
@@ -88,31 +91,54 @@ class Play extends Component {
     e.preventDefault();
     let {
       word,
-      letter,
       strikes,
       guesses,
       fail,
       won,
-      isDisabled
+      isDisabled,
+      error
     } = this.state;
-
-    if (_.includes(word, this.input.value.toUpperCase())) {} else {
+    error = "";
+    let letter = this.input.value.toUpperCase();
+    //if word include word next step  otherwise increase strikes
+    if (_.includes(word, letter)) {} else {
       strikes++;
     }
 
-    guesses.push(this.input.value.toUpperCase());
+    if(guesses.length >=1){
+      if(_.includes(guesses,letter)){
+        error = "Sorry, but this letter was used!";
+        this.setState({error});
+        return this.input.value = '';
+      }else {
+        guesses.push(letter);
+      }
+    } else {
+      guesses.push(letter);
+    }
 
     won = this.hasWon();
 
-    console.log(guesses, letter);
-
-    if (strikes >= 6 && !won) {
-      strikes = 6;
+    if (won) {
+      isDisabled = true;
+    }
+    //Check if failed
+    if (strikes >= 3 && !won) {
+      strikes = 3;
       fail = true;
       isDisabled = true;
     }
     this.input.value = '';
-    this.setState({strikes, isDisabled, guesses, fail, won});
+    this.input.focus();
+    this.setState({
+      strikes,
+      isDisabled,
+      guesses,
+      fail,
+      won,
+      letter: "",
+      error
+    });
   }
 
   getButton(letter, index) {
@@ -120,12 +146,14 @@ class Play extends Component {
       textTransform: 'uppercase'
     };
     return (
-      <form onSubmit={this.checkLetter}>
+      <form className="row" onSubmit={this.checkLetter}>
         <div className="input-field">
-          <input  id="text" style={inputStyle} maxLength="1" type="text" ref={(input) => this.input = input}/>
-        <label htmlFor="text">Letter:</label>
-      </div>
-        <input className="btn hoverable waves-effect waves-light  light-blue darken-3 hoverButton" type="submit" value="Check it"/>
+          <input disabled={this.state.isDisabled} onChange={this.handleChange} name="letter" id="text" style={inputStyle} maxLength="1" type="text" ref={(input) => this.input = input}/>
+          <label htmlFor="text">Letter:</label>
+          {this.state.error && <span className="error-block">{this.state.error}</span>}
+          <div className="section"></div>
+        </div>
+        <button disabled={!this.state.letter} className="col btn-large hoverable waves-effect waves-light  light-blue darken-3 hoverButton">Check it</button>
       </form>
 
     )
@@ -137,14 +165,11 @@ class Play extends Component {
     } else if (this.state.fail) {
       return 'Game Over';
     } else {
-      if (this.state.strikes >= 1 && this.state.strikes < 3) {
+      if (this.state.strikes === 1) {
         return 'YES YOU CAN';
       }
-      if (this.state.strikes === 3) {
+      if (this.state.strikes === 2) {
         return "DON'T GIVE UP"
-      }
-      if (this.state.strikes === 5) {
-        return 'YOU WILL ALWAYS SUCK AT WHAT YOU DO UNTIL YOU DO THIS'
       } else {
         return "YOU'LL DO THIS"
       }
@@ -154,11 +179,11 @@ class Play extends Component {
     return (
       <div className="container">
         <div className="divider light-blue darken-1"></div>
-        <div className = "rowImg"><img src={hangmanImg} alt="hangman" className="imgPosition"/></div>
+        <div className="rowImg"><img src={hangmanImg} alt="hangman" className="imgPosition"/></div>
         <center>
           <h1>{this.getTitle()}</h1>
           <h2>
-            <span className="card light-blue accent-3">{this.state.strikes}/6</span>
+            <span className="card light-blue accent-3">{this.state.strikes}/3</span>
           </h2>
         </center>
         <div className='row center'>
@@ -167,16 +192,18 @@ class Play extends Component {
         <div className="row">
           {this.getButton()}
         </div>
+        <div>
+          <span className="usedLetter card light-blue accent-3">{this.state.guesses}</span>
+        </div>
+        <div className="section"></div>
         <div className="divider light-blue darken-1"></div>
         <div className="section"></div>
-        <center>
-          <div className="row">
-            <button onClick={this.newGame} className="col btn-large hoverable waves-effect waves-light light-blue darken-4 hoverButton">New Game</button>
-            <Link className="col grey-text text-lighten-4 right" to="/">
-              <button onClick={this.newGame} className="btn-large hoverable waves-effect waves-light light-blue darken-4 hoverButton">Choose a level</button>
-            </Link>
-          </div>
-        </center>
+        <div className="row">
+          <button onClick={this.newGame} className="col btn-large hoverable waves-effect waves-light light-blue darken-4 hoverButton">New Game</button>
+          <Link className="col grey-text text-lighten-4 right" to="/">
+            <button onClick={this.newGame} className="btn-large hoverable waves-effect waves-light light-blue darken-4 hoverButton">Choose a level</button>
+          </Link>
+        </div>
       </div>
     );
   }
